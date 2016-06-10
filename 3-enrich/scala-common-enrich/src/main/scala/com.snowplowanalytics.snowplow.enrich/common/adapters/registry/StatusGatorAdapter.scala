@@ -25,6 +25,7 @@ import org.apache.http.NameValuePair
 // Scala
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
+import scala.util.control.NonFatal
 
 // Scalaz
 import scalaz._
