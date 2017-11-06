@@ -116,7 +116,8 @@ object UnbounceAdapter extends Adapter {
                       source       = payload.source,
                       context      = payload.context
                     )).success
-              }}
+                }
+              }
               case Failure(str) => str.failNel
             }
           } catch {
