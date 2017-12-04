@@ -37,7 +37,8 @@ import org.specs2.scalaz.ValidationMatchers
 import org.scalacheck._
 import org.scalacheck.Arbitrary._
 
-class TsvLoaderSpec extends Specification with DataTables with ValidationMatchers with ScalaCheck { def is = s2"""
+class TsvLoaderSpec extends Specification with DataTables with ValidationMatchers with ScalaCheck {
+  def is = s2"""
   This is a specification to test the TsvLoader functionality
   toCollectorPayload should return a CollectorPayload for a normal TSV                                      $e1
   toCollectorPayload should return None for the first two lines of a Cloudfront web distribution access log $e2
@@ -45,13 +46,13 @@ class TsvLoaderSpec extends Specification with DataTables with ValidationMatcher
 
   def e1 = {
     val expected = CollectorPayload(
-          api          = CollectorApi("com.amazon.aws.cloudfront", "wd_access_log"),
-          querystring  = Nil,
-          body         = "a\tb".some,
-          contentType  = None,
-          source       = CollectorSource("tsv", "UTF-8", None),
-          context      = CollectorContext(None, None, None, None, Nil, None)
-          )
+      api         = CollectorApi("com.amazon.aws.cloudfront", "wd_access_log"),
+      querystring = Nil,
+      body        = "a\tb".some,
+      contentType = None,
+      source      = CollectorSource("tsv", "UTF-8", None),
+      context     = CollectorContext(None, None, None, None, Nil, None)
+    )
     TsvLoader("com.amazon.aws.cloudfront/wd_access_log").toCollectorPayload("a\tb") must beSuccessful(expected.some)
   }
 

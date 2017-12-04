@@ -21,10 +21,7 @@ package registry
 import java.math.{BigInteger => JBigInteger}
 
 // Iglu
-import iglu.client.{
-  SchemaKey,
-  Resolver
-}
+import iglu.client.{SchemaKey, Resolver}
 
 // Scalaz
 import scalaz._
@@ -63,8 +60,8 @@ object CallrailAdapter extends Adapter {
 
   // Create a simple formatter function
   private val CallrailFormatter: FormatterFunc = {
-    val bools = List("first_call", "answered")
-    val ints = List("duration")
+    val bools                        = List("first_call", "answered")
+    val ints                         = List("duration")
     val dateTimes: JU.DateTimeFields = Some((NonEmptyList("datetime"), CallrailDateTimeFormat))
     buildFormatter(bools, ints, dateTimes)
   }
@@ -83,16 +80,16 @@ object CallrailAdapter extends Adapter {
   def toRawEvents(payload: CollectorPayload)(implicit resolver: Resolver): ValidatedRawEvents = {
 
     val params = toMap(payload.querystring)
-    if (params.isEmpty) {
+    if(params.isEmpty) {
       "Querystring is empty: no CallRail event to process".failNel
     } else {
-      NonEmptyList(RawEvent(
-        api          = payload.api,
-        parameters   = toUnstructEventParams(TrackerVersion, params,
-                         SchemaUris.CallComplete, CallrailFormatter, "srv"),
-        contentType  = payload.contentType,
-        source       = payload.source,
-        context      = payload.context
+      NonEmptyList(
+        RawEvent(
+          api         = payload.api,
+          parameters  = toUnstructEventParams(TrackerVersion, params, SchemaUris.CallComplete, CallrailFormatter, "srv"),
+          contentType = payload.contentType,
+          source      = payload.source,
+          context     = payload.context
         )).success
     }
   }

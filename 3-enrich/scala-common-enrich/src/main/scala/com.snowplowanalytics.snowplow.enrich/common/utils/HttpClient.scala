@@ -24,21 +24,21 @@ import Scalaz._
 import scalaj.http._
 
 object HttpClient {
+
   /**
    * Blocking method to get body of HTTP response
    *
    * @param request assembled request object
    * @return validated body of HTTP request
    */
-  def getBody(request: HttpRequest): Validation[Throwable, String] = {
+  def getBody(request: HttpRequest): Validation[Throwable, String] =
     try {
       val res = request.asString
-      if (res.isSuccess) res.body.success
+      if(res.isSuccess) res.body.success
       else new Exception(s"Request failed with status ${res.code} and body ${res.body}").failure
     } catch {
       case NonFatal(e) => e.failure
     }
-  }
 
   /**
    * Build HTTP request object
@@ -56,7 +56,7 @@ object HttpClient {
     method: String = "GET"
   ): HttpRequest = {
     val req = Http(uri).method(method)
-    if (authUser.isDefined || authPassword.isDefined) {
+    if(authUser.isDefined || authPassword.isDefined) {
       req.auth(authUser.getOrElse(""), authPassword.getOrElse(""))
     } else {
       req

@@ -47,19 +47,18 @@ case class Cache(size: Int, ttl: Int) {
    * @param key HTTP URL
    * @return validated JSON as it was fetched from DB if found
    */
-  def get(key: IntMap[ExtractedValue]): Option[ThrowableXor[List[JObject]]] = {
+  def get(key: IntMap[ExtractedValue]): Option[ThrowableXor[List[JObject]]] =
     cache.get(key) match {
       case Some((value, _)) if ttl == 0 => Some(value)
       case Some((value, created)) =>
         val now = (new DateTime().getMillis / 1000).toInt
-        if (now - created < ttl) Some(value)
+        if(now - created < ttl) Some(value)
         else {
           cache.remove(key)
           None
         }
       case _ => None
     }
-  }
 
   /**
    * Put a value into cache with current timestamp

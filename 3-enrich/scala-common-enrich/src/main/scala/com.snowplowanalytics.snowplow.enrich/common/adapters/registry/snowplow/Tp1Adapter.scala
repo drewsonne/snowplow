@@ -49,15 +49,16 @@ object Tp1Adapter extends Adapter {
   def toRawEvents(payload: CollectorPayload)(implicit resolver: Resolver): ValidatedRawEvents = {
 
     val params = toMap(payload.querystring)
-    if (params.isEmpty) {
+    if(params.isEmpty) {
       "Querystring is empty: no raw event to process".failNel
     } else {
-      NonEmptyList(RawEvent(
-        api          = payload.api,
-        parameters   = params,
-        contentType  = payload.contentType,
-        source       = payload.source,
-        context      = payload.context
+      NonEmptyList(
+        RawEvent(
+          api         = payload.api,
+          parameters  = params,
+          contentType = payload.contentType,
+          source      = payload.source,
+          context     = payload.context
         )).success
     }
   }

@@ -26,10 +26,9 @@ import org.json4s.jackson.JsonMethods._
 // Java
 import com.fasterxml.jackson.core.JsonParseException
 
-
 case class NdjsonLoader(adapter: String) extends Loader[String] {
 
-  private val CollectorName = "ndjson"
+  private val CollectorName     = "ndjson"
   private val CollectorEncoding = "UTF-8"
 
   /**
@@ -41,38 +40,39 @@ case class NdjsonLoader(adapter: String) extends Loader[String] {
    *         boxed, or None if no input was
    *         extractable.
    */
-  override def toCollectorPayload(line: String): ValidatedMaybeCollectorPayload = {
-
+  override def toCollectorPayload(line: String): ValidatedMaybeCollectorPayload =
     try {
 
-      if (line.replaceAll("\r?\n", "").isEmpty) {
+      if(line.replaceAll("\r?\n", "").isEmpty) {
         Success(None)
-      } else if (line.split("\r?\n").size > 1) {
+      } else if(line.split("\r?\n").size > 1) {
         "Too many lines! Expected single line".failNel
       } else {
         parse(line)
-        CollectorApi.parse(adapter).map(
-          CollectorPayload(
-            Nil,
-            CollectorName,
-            CollectorEncoding,
-            None,
-            None,
-            None,
-            None,
-            None,
-            Nil,
-            None,
-            _,
-            None,
-            Some(line)
-          ).some
-        ).toValidationNel
+        CollectorApi
+          .parse(adapter)
+          .map(
+            CollectorPayload(
+              Nil,
+              CollectorName,
+              CollectorEncoding,
+              None,
+              None,
+              None,
+              None,
+              None,
+              Nil,
+              None,
+              _,
+              None,
+              Some(line)
+            ).some
+          )
+          .toValidationNel
       }
 
     } catch {
       case e: JsonParseException => "Unparsable JSON".failNel
     }
-  }
 
 }

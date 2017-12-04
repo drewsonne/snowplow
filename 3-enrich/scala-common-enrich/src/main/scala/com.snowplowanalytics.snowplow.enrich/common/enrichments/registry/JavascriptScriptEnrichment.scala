@@ -38,19 +38,12 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods
 
 // Iglu
-import iglu.client.{
-  SchemaCriterion,
-  SchemaKey
-}
+import iglu.client.{SchemaCriterion, SchemaKey}
 import iglu.client.validation.ProcessingMessageMethods._
 
 // This project
 import outputs.EnrichedEvent
-import utils.{
-  ScalazJson4sUtils,
-  ConversionUtils,
-  JsonUtils => JU
-}
+import utils.{ScalazJson4sUtils, ConversionUtils, JsonUtils => JU}
 
 /**
  * Lets us create a JavascriptScriptEnrichment from a JValue.
@@ -67,16 +60,15 @@ object JavascriptScriptEnrichmentConfig extends ParseableEnrichment {
    *        Must be a supported SchemaKey for this enrichment
    * @return a configured JavascriptScriptEnrichment instance
    */
-  def parse(config: JValue, schemaKey: SchemaKey): ValidatedNelMessage[JavascriptScriptEnrichment] = {
-    isParseable(config, schemaKey).flatMap( conf => {
+  def parse(config: JValue, schemaKey: SchemaKey): ValidatedNelMessage[JavascriptScriptEnrichment] =
+    isParseable(config, schemaKey).flatMap(conf => {
       (for {
         encoded  <- ScalazJson4sUtils.extract[String](config, "parameters", "script")
         raw      <- ConversionUtils.decodeBase64Url("script", encoded).toProcessingMessage // TODO: shouldn't be URL-safe
         compiled <- JavascriptScriptEnrichment.compile(raw).toProcessingMessage
-        enrich    = JavascriptScriptEnrichment(compiled)
+        enrich = JavascriptScriptEnrichment(compiled)
       } yield enrich).toValidationNel
     })
-  }
 
 }
 
@@ -87,8 +79,8 @@ object JavascriptScriptEnrichment {
 
   object Variables {
     private val prefix = "$snowplow31337" // To avoid collisions
-    val In  = s"${prefix}In"
-    val Out = s"${prefix}Out"
+    val In             = s"${prefix}In"
+    val Out            = s"${prefix}Out"
   }
 
   /**
@@ -101,7 +93,7 @@ object JavascriptScriptEnrichment {
   private[registry] def compile(script: String): Validation[String, Script] = {
 
     // Script mustn't be null
-    if (Option(script).isEmpty) {
+    if(Option(script).isEmpty) {
       return "JavaScript script for evaluation is null".fail
     }
 
@@ -139,13 +131,13 @@ object JavascriptScriptEnrichment {
   implicit val formats = DefaultFormats
   private[registry] def process(script: Script, event: EnrichedEvent): Validation[String, List[JObject]] = {
 
-    val cx = Context.enter()
+    val cx    = Context.enter()
     val scope = cx.initStandardObjects
 
     try {
       scope.put(Variables.In, scope, Context.javaToJS(event, scope))
       val retVal = script.exec(cx, scope)
-      if (Option(retVal).isDefined) {
+      if(Option(retVal).isDefined) {
         return s"Evaluated JavaScript script should not return a value; returned: [${retVal}]".fail
       }
     } catch {
@@ -161,7 +153,7 @@ object JavascriptScriptEnrichment {
         try {
           JsonMethods.parse(obj.asInstanceOf[String]) match {
             case JArray(elements) => failFastCast(List[JObject](), elements).success
-            case _ => s"JavaScript script must return an Array; got [${obj}]".fail
+            case _                => s"JavaScript script must return an Array; got [${obj}]".fail
           }
         } catch {
           case NonFatal(nf) =>
@@ -179,7 +171,7 @@ object JavascriptScriptEnrichment {
   import scala.language.higherKinds
   private def failFastCast[A: Manifest, T[A] <: Traversable[A]](as: T[A], any: Any) = {
     val res = any.asInstanceOf[T[A]]
-    if (res.isEmpty) res
+    if(res.isEmpty) res
     else {
       manifest[A].newArray(1).update(0, res.head) // force exception on wrong type
       res
@@ -194,7 +186,7 @@ object JavascriptScriptEnrichment {
  */
 case class JavascriptScriptEnrichment(
   script: Script
-  ) extends Enrichment {
+) extends Enrichment {
 
   val version = new DefaultArtifactVersion("0.1.0")
 
